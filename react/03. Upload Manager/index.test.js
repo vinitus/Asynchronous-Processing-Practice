@@ -55,5 +55,30 @@ test('component connects file input to upload and renders file progress/status',
   fireEvent.change(screen.getByLabelText('Files'), { target: { files: [file] } });
   expect(api.mock.calls[0][0]).toBe(file);
   expect(screen.getByText(/car.png/)).toBeTruthy();
-  await settle(gate, 'uploaded'); expect(screen.getByText(/success/)).toBeTruthy();
+  await settle(gate, 'uploaded');
+  expect(require('@testing-library/react').within(screen.getByRole('listitem', { name: 'car.png' })).getByText('success')).toBeTruthy();
+});
+
+test('UI: progress, queued/active cancellation, actual concurrency and summary', async () => {
+  const React = require('react');
+  const { render, screen, fireEvent, within } = require('@testing-library/react');
+  const { UploadList } = require('./index');
+  const requests = [];
+  const api = jest.fn((file, options) => { const gate = deferred(); requests.push({ file, options, gate }); return gate.promise; });
+  render(React.createElement(UploadList, { upload: api }));
+  const files = Array.from({ length: 5 }, (_, i) => new File(['image'], `${i}.png`, { type: 'image/png' }));
+  fireEvent.change(screen.getByLabelText('Files'), { target: { files } });
+  expect(requests).toHaveLength(3);
+  act(() => requests[0].options.onProgress(45));
+  expect(screen.getByRole('progressbar', { name: 'Progress 0.png' }).value).toBe(45);
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel 0.png' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel 3.png' }));
+  expect(requests[0].options.signal.aborted).toBe(true);
+  expect(requests).toHaveLength(3);
+  expect(within(screen.getByRole('listitem', { name: '3.png' })).getByText('cancelled')).toBeTruthy();
+  await settle(requests[0].gate, new Error('cancelled'), true);
+  expect(requests).toHaveLength(4); expect(requests[3].file.name).toBe('4.png');
+  for (const request of requests.slice(1)) await settle(request.gate, 'uploaded');
+  expect(JSON.parse(screen.getByLabelText('Upload summary').textContent)).toMatchObject({ total: 5, success: 3, cancelled: 2, uploading: 0, queued: 0 });
+  expect(screen.getByRole('button', { name: 'Cancel 1.png' }).disabled).toBe(true);
 });

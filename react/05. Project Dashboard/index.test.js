@@ -84,3 +84,23 @@ test('component displays project-specific partial success and errors', async () 
   expect(screen.getByText(/deployment-visible/)).toBeTruthy();
   expect(screen.getByText(/incident unavailable/)).toBeTruthy();
 });
+
+test('UI: partial project data appears before all requests finish, then summary is visible', async () => {
+  const React = require('react'); const { render, screen, within } = require('@testing-library/react');
+  const { ProjectDashboard } = require('./index'); const f = fixture();
+  render(React.createElement(ProjectDashboard, { api: f.api }));
+  await f.finish(f.calls[0], [{ id: 'alpha' }, { id: 'beta' }]);
+  const deployment = f.calls.find(c => c.name === 'deployment');
+  await f.finish(deployment, 'visible deployment');
+  expect(within(screen.getByRole('article', { name: deployment.args[0] })).getByText('visible deployment')).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toBe('Loading');
+  for (let i = 0; i < 20 && f.calls.some(c => !c.done); i++) {
+    const call = f.calls.find(c => !c.done);
+    const fail = call.name === 'incidents' && call.args[0] === 'alpha';
+    await f.finish(call, fail ? new Error('incident unavailable') : call.name === 'build' ? { status: 'success' } : `${call.name}-ok`, fail);
+  }
+  expect(within(screen.getByRole('article', { name: 'alpha' })).getByRole('alert').textContent).toBe('incident unavailable');
+  expect(within(screen.getByRole('article', { name: 'beta' })).queryByRole('alert')).toBeNull();
+  expect(JSON.parse(screen.getByLabelText('Dashboard summary').textContent)).toEqual({ success: 9, failed: 1, skipped: 2 });
+  expect(screen.getByRole('status').textContent).toBe('Idle');
+});

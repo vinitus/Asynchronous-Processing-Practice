@@ -19,6 +19,10 @@ projects 항목은 `{ id, sections }`입니다. sections의 키는 deployment/bu
 모든 작업 종료 시 summary는 `{ success, failed, skipped }`이며 section 수를 셉니다. 성공한 빈 목록은 모두 0입니다.
 `ProjectDashboard({ api })`는 프로젝트별 영역 상태/데이터/오류 및 종료 요약을 표시합니다.
 
+## 제공 UI
+
+프로젝트 ID를 접근 가능한 이름으로 하는 article 안에 section별 이름/상태/성공 데이터/오류를 표시합니다. role=status는 Loading/Idle이며 `Dashboard summary`는 종료 전 Pending, 종료 후 JSON입니다.
+
 ## 요구사항
 
 1. 접근 가능한 프로젝트 목록을 받은 뒤 프로젝트별 상세 요청을 실행한다.
@@ -48,10 +52,12 @@ projects 항목은 `{ id, sections }`입니다. sections의 키는 deployment/bu
 npm test -- --runInBand --testPathPatterns="react/05. Project Dashboard/index.test.js"
 ```
 
-스켈레톤은 명시적으로 Not implemented 오류를 던집니다. 구현 전 assertion/미구현 오류는 정상이며 러너/모듈 오류와 구분하세요.
+제공 UI는 마운트되지만 hook은 초기 상태와 빈 동작만 반환합니다. 비동기 로직은 TODO이며 06번 작업 연결부는 Not implemented 오류를 던집니다. 구현 전 요구사항 assertion 실패는 정상이며 러너/모듈 오류와 구분하세요.
 
 ## 테스트 범위
 
 `index.test.js`는 React DOM에서 마운트하고 수동 Promise 및 가상 타이머로 순서, 오류, 정리와 상태 전환을 관찰합니다.
 실제 네트워크나 임의 sleep은 사용하지 않습니다. 원문의 번호와 테스트 이름을 함께 읽어 평가 범위를 확인하세요.
-화면 컴포넌트에는 의미 있는 접근 가능한 목록/상태/오류 표시를 제공하세요.
+기본 UI와 hook 연결은 제공됩니다. 입력/버튼 조작과 화면의 목록·로딩·오류·진행률을 관찰하는 UI 테스트 및 hook 계약 테스트를 함께 실행합니다. 비동기 상태 전환·요청·스케줄링·정리는 직접 구현하세요.
+
+`npm run react:browser` 후 http://127.0.0.1:8000 에서 Exercise를 선택해 미구현 UI도 볼 수 있습니다. 구현 후 Mock requests에서 JSON 응답을 편집하고 Resolve/Reject를 원하는 순서로 눌러 역순 응답과 실패를 재현하세요. 실제 서버는 필요하지 않습니다.

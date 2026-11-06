@@ -51,3 +51,31 @@ test('component exposes loaded data and total', async () => {
   await settle(gate, { items: ['camera'], total: 42 });
   expect(screen.getByText(/camera/)).toBeTruthy(); expect(screen.getByText(/42/)).toBeTruthy();
 });
+
+test('UI: page, category, status, sort and refresh preserve current response consistency', async () => {
+  const { fireEvent } = require('@testing-library/react');
+  const requests = [];
+  const api = jest.fn(conditions => { const gate = deferred(); requests.push({ conditions, gate }); return gate.promise; });
+  render(React.createElement(ProductList, { fetchProducts: api }));
+  expect(screen.getByRole('status').textContent).toBe('Loading');
+  fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+  expect(requests.at(-1).conditions.page).toBe(2);
+  fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'electronics' } });
+  expect(screen.getByLabelText('Page').textContent).toBe('1');
+  fireEvent.change(screen.getByLabelText('Sale status'), { target: { value: 'sale' } });
+  fireEvent.change(screen.getByLabelText('Sort'), { target: { value: 'price' } });
+  const before = requests.at(-1);
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+  expect(requests.at(-1).conditions).toEqual({ category: 'electronics', status: 'sale', sort: 'price', page: 1 });
+  expect(requests.at(-1)).not.toBe(before);
+  await settle(requests.at(-1).gate, { items: ['camera'], total: 42 });
+  for (const request of requests.slice(0, -1)) await settle(request.gate, new Error('stale'), true);
+  expect(screen.getByRole('list', { name: 'Product items' }).textContent).toBe('camera');
+  expect(screen.getByLabelText('Total').textContent).toBe('42');
+  expect(screen.queryByRole('alert')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+  await settle(requests.at(-1).gate, new Error('offline'), true);
+  expect(screen.getByRole('alert').textContent).toBe('offline');
+  expect(screen.getByLabelText('Total').textContent).toBe('42');
+  expect(screen.getByRole('status').textContent).toBe('Idle');
+});

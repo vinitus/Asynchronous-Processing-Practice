@@ -15,6 +15,10 @@ JSX 사용은 선택입니다. 현재 설정에서는 `React.createElement`를 �
 새 요청과 실패 시 기존 items/total을 유지하고 새 요청은 error를 지웁니다.
 `ProductList({ fetchProducts })`도 내보내세요. 목록과 total, loading, 오류 및 필터/페이지/새로고침 조작을 화면에 제공합니다.
 
+## 제공 UI
+
+`Category`(All/clothing/electronics), `Sale status`(All/sale/hidden), `Sort`(name/price) select와 `Next page`, `Refresh` 버튼을 제공합니다. `Page`, `Total` 표시, `Product items` 목록, role=status의 Loading/Idle 및 role=alert의 오류를 사용합니다. 테스트의 items는 문자열 배열입니다.
+
 ## 요구사항
 
 1. 현재 필터 및 페이지 조건에 해당하는 응답만 화면에 반영한다.
@@ -41,10 +45,12 @@ JSX 사용은 선택입니다. 현재 설정에서는 `React.createElement`를 �
 npm test -- --runInBand --testPathPatterns="react/02. Product List/index.test.js"
 ```
 
-스켈레톤은 명시적으로 Not implemented 오류를 던집니다. 구현 전 assertion/미구현 오류는 정상이며 러너/모듈 오류와 구분하세요.
+제공 UI는 마운트되지만 hook은 초기 상태와 빈 동작만 반환합니다. 비동기 로직은 TODO이며 06번 작업 연결부는 Not implemented 오류를 던집니다. 구현 전 요구사항 assertion 실패는 정상이며 러너/모듈 오류와 구분하세요.
 
 ## 테스트 범위
 
 `index.test.js`는 React DOM에서 마운트하고 수동 Promise 및 가상 타이머로 순서, 오류, 정리와 상태 전환을 관찰합니다.
 실제 네트워크나 임의 sleep은 사용하지 않습니다. 원문의 번호와 테스트 이름을 함께 읽어 평가 범위를 확인하세요.
-화면 컴포넌트에는 의미 있는 접근 가능한 목록/상태/오류 표시를 제공하세요.
+기본 UI와 hook 연결은 제공됩니다. 입력/버튼 조작과 화면의 목록·로딩·오류·진행률을 관찰하는 UI 테스트 및 hook 계약 테스트를 함께 실행합니다. 비동기 상태 전환·요청·스케줄링·정리는 직접 구현하세요.
+
+`npm run react:browser` 후 http://127.0.0.1:8000 에서 Exercise를 선택해 미구현 UI도 볼 수 있습니다. 구현 후 Mock requests에서 JSON 응답을 편집하고 Resolve/Reject를 원하는 순서로 눌러 역순 응답과 실패를 재현하세요. 실제 서버는 필요하지 않습니다.

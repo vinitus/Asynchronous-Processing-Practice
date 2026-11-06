@@ -9,6 +9,7 @@ JSX 사용은 선택입니다. 현재 설정에서는 `React.createElement`를 �
 
 `useUploadManager(upload)` → `{ files: [], summary, addFiles, cancel }`.
 `addFiles([{ id, file }])`는 ID별로 한 번만 등록합니다. `cancel(id)`는 해당 파일을 취소합니다.
+대기 파일은 입력 순서대로 시작합니다.
 files 항목은 `{ id, status, progress, attempts, result, error }`이며 status는 queued/uploading/success/failed/cancelled입니다.
 progress는 0–100, attempts는 실제 호출 횟수입니다. summary는 각 status의 개수와 total을 가집니다.
 `upload(file, { signal, onProgress })`는 결과 Promise를 반환합니다. signal은 AbortSignal이며 진행률 콜백은 0–100을 받습니다.
@@ -17,6 +18,10 @@ progress는 0–100, attempts는 실제 호출 횟수입니다. summary는 각 s
 성공은 progress=100, result를 저장합니다. 취소/실패 progress는 마지막 값을 유지합니다.
 `UploadList({ upload })`의 파일 입력은 label `Files`를 가지며 선택한 File의 name을 id로 사용합니다.
 `UploadList({ upload })`는 hook과 연결한 목록, 파일 추가/취소 조작, 파일별 상태/진행률과 summary를 제공합니다.
+
+## 제공 UI
+
+`Files` 입력은 여러 이미지를 받습니다. 파일별 listitem의 접근 가능한 이름은 파일 ID입니다. `Cancel <id>` 버튼, `Progress <id>` progressbar, 파일 상태/시도 횟수/오류 및 `Upload summary` JSON 표시가 제공됩니다. 요약 키는 total/queued/uploading/success/failed/cancelled입니다.
 
 ## 요구사항
 
@@ -46,10 +51,12 @@ progress는 0–100, attempts는 실제 호출 횟수입니다. summary는 각 s
 npm test -- --runInBand --testPathPatterns="react/03. Upload Manager/index.test.js"
 ```
 
-스켈레톤은 명시적으로 Not implemented 오류를 던집니다. 구현 전 assertion/미구현 오류는 정상이며 러너/모듈 오류와 구분하세요.
+제공 UI는 마운트되지만 hook은 초기 상태와 빈 동작만 반환합니다. 비동기 로직은 TODO이며 06번 작업 연결부는 Not implemented 오류를 던집니다. 구현 전 요구사항 assertion 실패는 정상이며 러너/모듈 오류와 구분하세요.
 
 ## 테스트 범위
 
 `index.test.js`는 React DOM에서 마운트하고 수동 Promise 및 가상 타이머로 순서, 오류, 정리와 상태 전환을 관찰합니다.
 실제 네트워크나 임의 sleep은 사용하지 않습니다. 원문의 번호와 테스트 이름을 함께 읽어 평가 범위를 확인하세요.
-화면 컴포넌트에는 의미 있는 접근 가능한 목록/상태/오류 표시를 제공하세요.
+기본 UI와 hook 연결은 제공됩니다. 입력/버튼 조작과 화면의 목록·로딩·오류·진행률을 관찰하는 UI 테스트 및 hook 계약 테스트를 함께 실행합니다. 비동기 상태 전환·요청·스케줄링·정리는 직접 구현하세요.
+
+`npm run react:browser` 후 http://127.0.0.1:8000 에서 Exercise를 선택해 미구현 UI도 볼 수 있습니다. 구현 후 Mock requests에서 JSON 응답을 편집하고 Resolve/Reject를 원하는 순서로 눌러 역순 응답과 실패를 재현하세요. 실제 서버는 필요하지 않습니다.

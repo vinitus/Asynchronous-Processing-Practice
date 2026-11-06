@@ -49,3 +49,18 @@ test('component renders status and error information', async () => {
   await tick(2000); await settle(b, new Error('network unavailable'), true);
   expect(screen.getByText(/network unavailable/)).toBeTruthy();
 });
+
+test('UI: Stop invalidates a pending response and prevents future polling', async () => {
+  const React = require('react');
+  const { render, screen, fireEvent } = require('@testing-library/react');
+  const { DeliveryStatus } = require('./index');
+  const gate = deferred(); const api = jest.fn(() => gate.promise);
+  render(React.createElement(DeliveryStatus, { fetchStatus: api }));
+  expect(screen.getByRole('status').textContent).toBe('Loading');
+  fireEvent.click(screen.getByRole('button', { name: 'Stop' }));
+  expect(screen.getByRole('status').textContent).toBe('Stopped');
+  expect(screen.getByRole('button', { name: 'Stop' }).disabled).toBe(true);
+  await settle(gate, 'DELIVERED'); await tick(100000);
+  expect(screen.getByLabelText('Delivery status').textContent).toBe('Unknown');
+  expect(api).toHaveBeenCalledTimes(1); expect(jest.getTimerCount()).toBe(0);
+});
