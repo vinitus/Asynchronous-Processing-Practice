@@ -1,0 +1,20 @@
+{
+  "name": "asynchronous_processing_practice",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000A\u0000s\u0000y\u0000n\u0000c\u0000h\u0000r\u0000o\u0000n\u0000o\u0000u\u0000s\u0000-\u0000P\u0000r\u0000o\u0000c\u0000e\u0000s\u0000s\u0000i\u0000n\u0000g\u0000-\u0000P\u0000r\u0000a\u0000c\u0000t\u0000i\u0000c\u0000e\u0000\r\u0000 \u0000",
+  "homepage": "https://github.com/vinitus/Asynchronous-Processing-Practice#readme",
+  "bugs": {
+    "url": "https://github.com/vinitus/Asynchronous-Processing-Practice/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinitus/Asynchronous-Processing-Practice.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
