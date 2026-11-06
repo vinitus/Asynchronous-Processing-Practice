@@ -21,3 +21,5 @@ npm.cmd test -- --runInBand
 제공된 모든 index.js와 worker.js는 미구현 스켈레톤입니다. 구현하기 전에는 테스트가 실패해야 합니다. 테스트 러너의 제한 시간은 무한 대기 감지용이며 문제의 성능 제한이 아닙니다.
 
 원문에서 선택 확장으로 제시한 Retry-After(07), scheduler.yield 및 환경별 대체 동작(09), Transferable ArrayBuffer(10)는 필수 테스트에 포함하지 않습니다.
+
+React 문제는 [react/README.md](../react/README.md)를 참고하세요. `npm run test:react -- --runInBand`로 별도 실행할 수 있습니다.

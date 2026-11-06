@@ -15,15 +15,24 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:react": "jest --testPathPatterns=react/",
+    "react:browser": "esbuild react/browser/demo.js --bundle --outfile=react/browser/dist/demo.js --servedir=react/browser --serve=127.0.0.1:8000",
+    "test:react:scaffolds": "jest --testPathPatterns=testing/react-"
   },
   "devDependencies": {
     "@babel/core": "^8.1.0",
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-typescript": "^8.0.7",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
     "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "typescript": "^7.0.2"
   }
 }
